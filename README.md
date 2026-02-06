@@ -1,51 +1,41 @@
-Terraform – Private EC2 with NAT Gateway, ALB & Strapi
-📌 Project Overview
+# Terraform – Private EC2 with NAT Gateway, ALB & Strapi
 
-This project demonstrates how to deploy a secure, production-style AWS architecture using Terraform.
-A Strapi application is hosted on a private EC2 instance inside a custom VPC, with controlled access through an Application Load Balancer (ALB) and outbound internet access via a NAT Gateway.
+## 📌 Project Overview
 
-All infrastructure is provisioned using Infrastructure as Code (IaC) following modular Terraform best practices.
+This project demonstrates deploying a **secure AWS infrastructure** using **Terraform** where a **Strapi application** runs on a **private EC2 instance** inside a custom **VPC**.
 
-🏗 Architecture
+The application is accessed through an **Application Load Balancer (ALB)** placed in a public subnet, while the EC2 instance remains private and uses a **NAT Gateway** for outbound internet access.  
+All infrastructure is created using **Infrastructure as Code (IaC)** with a **modular Terraform structure**.
+
+---
+
+## 🏗 Architecture
 Internet
-   |
-[ Application Load Balancer ]
-   |
+|
+[ Application Load Balancer (Public Subnet) ]
+|
 [ Private EC2 (Docker + Strapi) ]
-   |
+|
 [ NAT Gateway ] → Internet (updates, Docker images)
 
-Key Design Points
 
-EC2 instance does not have a public IP
+---
 
-Only the ALB is exposed to the internet
+## 🧰 Technologies Used
 
-Outbound traffic from private EC2 goes through NAT Gateway
+- AWS EC2
+- AWS VPC
+- Public & Private Subnets
+- NAT Gateway
+- Application Load Balancer (ALB)
+- Terraform
+- Docker
+- Strapi CMS
+- Ubuntu Linux
 
-Docker is installed automatically using user_data
+---
 
-Environment values are managed via terraform.tfvars
-
-🧰 Technologies Used
-
-AWS EC2
-
-AWS VPC
-
-Application Load Balancer (ALB)
-
-NAT Gateway
-
-Terraform
-
-Docker
-
-Strapi CMS
-
-Ubuntu Linux
-
-📂 Project Structure
+## 📂 Project Structure
 terraform-strapi-private-ec2/
 │
 ├── main.tf
@@ -56,100 +46,99 @@ terraform-strapi-private-ec2/
 ├── user_data.sh
 │
 └── modules/
-    ├── vpc/
-    │   ├── main.tf
-    │   ├── variables.tf
-    │   └── outputs.tf
-    │
-    ├── security/
-    │   ├── main.tf
-    │   └── outputs.tf
-    │
-    ├── ec2/
-    │   ├── main.tf
-    │   └── outputs.tf
-    │
-    └── alb/
-        ├── main.tf
-        └── outputs.tf
+├── vpc/
+│ ├── main.tf
+│ ├── variables.tf
+│ └── outputs.tf
+│
+├── security/
+│ ├── main.tf
+│ └── outputs.tf
+│
+├── ec2/
+│ ├── main.tf
+│ └── outputs.tf
+│
+└── alb/
+├── main.tf
+└── outputs.tf
 
-🔐 Security Design
+---
 
-ALB Security Group
+## 🔐 Security Design
 
-Allows HTTP (80) from 0.0.0.0/0
+- **ALB Security Group**
+  - Allows HTTP (Port 80) from anywhere
 
-EC2 Security Group
+- **EC2 Security Group**
+  - Allows Strapi (Port 1337) only from ALB
+  - SSH (Port 22) restricted to a specific IP using tfvars
 
-Allows Strapi port 1337 only from ALB
+- **Private EC2**
+  - No public IP assigned
+  - Not directly accessible from the internet
 
-SSH access restricted to a specific IP (defined in tfvars)
+---
 
-Private EC2
+## ⚙️ Automated Application Setup (User Data)
 
-No public IP assigned
+The EC2 instance uses a `user_data` script to automatically:
 
-Accessible only via ALB or SSH (controlled CIDR)
+- Update the system
+- Install Docker
+- Start and enable Docker service
+- Run Strapi using Docker
 
-⚙️ Automated Application Setup (User Data)
-
-The EC2 instance uses user_data.sh to automatically:
-
-Update the system
-
-Install Docker
-
-Start Docker service
-
-Run Strapi using Docker
-
+``bash
 docker run -d -p 1337:1337 --name strapi strapi/strapi
+
+---
 
 🌍 Environment Configuration
 
 All environment-specific values are managed using terraform.tfvars, including:
 
-AWS Region
+AWS region
 
-VPC & Subnet CIDRs
+VPC and subnet CIDR ranges
 
 EC2 instance type
 
 AMI ID
 
-SSH key name
+SSH key pair name
 
 Allowed SSH CIDR
 
-This makes the setup reusable across dev / test / prod environments.
+This allows easy reuse across multiple environments.
 
-🚀 How to Deploy
+ ---
+
+ 🚀 Deployment Steps
 terraform init
 terraform plan
 terraform apply
-
-
-After deployment, access the application using the ALB DNS name from Terraform outputs.
+After deployment, the Strapi application can be accessed using the ALB DNS name from Terraform outputs.
 
 📤 Outputs
 
-ALB DNS Name – Used to access the Strapi application
+Application Load Balancer DNS name
 
-VPC and resource IDs for verification
+Resource IDs for verification
 
-🧠 What I Learned
+🧠 Key Learnings
 
-Designing secure AWS networking using public & private subnets
+Designing secure VPC architecture with public and private subnets
 
-Implementing NAT Gateway for private resource internet access
+Using NAT Gateway for outbound internet from private instances
 
-Exposing private services securely using ALB
+Exposing private applications securely using ALB
 
-Automating application deployment with user_data
+Automating application setup with user_data
 
-Writing modular, reusable Terraform code
+Writing modular and reusable Terraform code
 
-Managing environments using tfvars
+Managing infrastructure using tfvars
 
 ✅ Use Case
 
@@ -159,6 +148,5 @@ Production-ready web applications
 
 Secure backend services
 
-Microservices hosted in private subnets
+DevOps and Cloud infrastructure demonstrations
 
-DevOps & Cloud engineering demonstrations
